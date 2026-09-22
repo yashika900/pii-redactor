@@ -1,5 +1,6 @@
 streamlit>=1.38
 groq>=0.11
 pytest>=8.0
-llama-cpp-python>=0.2.90
 huggingface_hub>=0.24
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+llama-cpp-python
