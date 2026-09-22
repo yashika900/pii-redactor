@@ -8,6 +8,10 @@ Built by fine-tuning Llama 3.2 3B with LoRA on a custom synthetic dataset,
 then quantizing and serving it locally via Ollama, backed by a regex-based
 safety net for near-zero data leakage.
 
+**🔗 Live demo:** [pii-redactor-3emxrbsyensfdyq3ip2mpy.streamlit.app](https://pii-redactor-3emxrbsyensfdyq3ip2mpy.streamlit.app)
+*(hosted for convenience — the actual point of this project is that it
+runs fully offline on your own device; see [Getting started](#getting-started) below)*
+
 **Model on Hugging Face Hub:** [Yashika900/pii-redactor-llama3.2-3b](https://huggingface.co/Yashika900/pii-redactor-llama3.2-3b)
 
 ---
@@ -56,6 +60,12 @@ layer catches anything structurally predictable that slips through —
 empirically demonstrated to recover missed emails and IP addresses in
 stress testing (see [Results](#results) below).
 
+> **Note on the two deployment paths:** this repo ships both a local,
+> Ollama-based app (`src/app.py`) for genuine offline use, and a
+> Streamlit-Community-Cloud-compatible version (`src/app_cloud.py`, via
+> `llama-cpp-python`) used purely to host the public demo link above.
+> Both use the identical fine-tuned model and safety-net logic.
+
 ## Results
 
 | Metric | Result |
@@ -78,7 +88,7 @@ stress testing (see [Results](#results) below).
 - **Fine-tuning:** [Unsloth](https://github.com/unslothai/unsloth), PyTorch, TRL, PEFT (LoRA)
 - **Base model:** [Llama 3.2 3B Instruct](https://huggingface.co/unsloth/Llama-3.2-3B-Instruct)
 - **Export/quantization:** [llama.cpp](https://github.com/ggml-org/llama.cpp) (GGUF, Q4_K_M)
-- **Serving:** [Ollama](https://ollama.com)
+- **Serving:** [Ollama](https://ollama.com) (local) / `llama-cpp-python` (cloud demo)
 - **Safety net:** Python `re`
 - **Interface:** [Streamlit](https://streamlit.io)
 
@@ -117,7 +127,6 @@ pii-redactor/
 
 Or download via the Hugging Face CLI:
 ```bash
-pip install huggingface_hub
 python -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id='Yashika900/pii-redactor-llama3.2-3b', filename='pii_redactor_q4.gguf', local_dir='models'); hf_hub_download(repo_id='Yashika900/pii-redactor-llama3.2-3b', filename='Modelfile', local_dir='models')"
 ```
 
@@ -156,11 +165,13 @@ false-positive license plate detection on reference numbers).
 pii-redactor/
 ├── src/
 │   ├── inference/
-│   │   ├── redactor.py       # PIIRedactor class — the core pipeline
-│   │   └── regex_patterns.py # Safety-net regex layer
+│   │   ├── redactor.py           # PIIRedactor (Ollama) — local/offline use
+│   │   ├── llamacpp_redactor.py  # PIIRedactorCloud — Streamlit Cloud demo
+│   │   └── regex_patterns.py     # Safety-net regex layer
 │   ├── data_generation/
 │   │   └── generate_dataset.py
-│   └── app.py                 # Streamlit interface
+│   ├── app.py                    # Local Streamlit app (Ollama-based)
+│   └── app_cloud.py               # Cloud-deployed Streamlit app
 ├── tests/
 │   └── test_regex_patterns.py
 ├── data/
