@@ -8,6 +8,8 @@ Built by fine-tuning Llama 3.2 3B with LoRA on a custom synthetic dataset,
 then quantizing and serving it locally via Ollama, backed by a regex-based
 safety net for near-zero data leakage.
 
+**Model on Hugging Face Hub:** [Yashika900/pii-redactor-llama3.2-3b](https://huggingface.co/Yashika900/pii-redactor-llama3.2-3b)
+
 ---
 
 ## Why
@@ -99,11 +101,24 @@ pip install -r requirements.txt
 
 ### 3. Download the model
 
-The quantized model (`pii_redactor_q4.gguf`, 1.88GB) is hosted on Hugging
-Face Hub rather than in this repo. Download it into `models/`:
+The quantized model (`pii_redactor_q4.gguf`, 1.88GB) and its `Modelfile`
+are hosted on Hugging Face Hub:
+👉 **https://huggingface.co/Yashika900/pii-redactor-llama3.2-3b**
 
+Download both files from the "Files and versions" tab there, and place
+them into this repo's `models/` folder:
+
+```
+pii-redactor/
+└── models/
+    ├── pii_redactor_q4.gguf
+    └── Modelfile
+```
+
+Or download via the Hugging Face CLI:
 ```bash
-# instructions/link added once uploaded to HF Hub
+pip install huggingface_hub
+python -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id='Yashika900/pii-redactor-llama3.2-3b', filename='pii_redactor_q4.gguf', local_dir='models'); hf_hub_download(repo_id='Yashika900/pii-redactor-llama3.2-3b', filename='Modelfile', local_dir='models')"
 ```
 
 ### 4. Load the model into Ollama
