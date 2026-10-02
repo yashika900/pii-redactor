@@ -8,8 +8,6 @@ Built by fine-tuning Llama 3.2 3B with LoRA on a custom synthetic dataset,
 then quantizing and serving it locally via Ollama, backed by a regex-based
 safety net for near-zero data leakage.
 
-**Author:** [Yashika Harwani](https://github.com/yashika900)
-
 **Model on Hugging Face Hub:** [Yashika900/pii-redactor-llama3.2-3b](https://huggingface.co/Yashika900/pii-redactor-llama3.2-3b)
 
 > **On hosting:** this project doesn't have a permanently-hosted live demo
@@ -221,6 +219,9 @@ pii-redactor/
 These are documented here deliberately — they were found through genuine
 stress testing, not glossed over.
 
+## Author
+
+**Author:** [Yashika Harwani](https://github.com/yashika900)
 ## License
 
 MIT
