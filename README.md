@@ -8,13 +8,33 @@ Built by fine-tuning Llama 3.2 3B with LoRA on a custom synthetic dataset,
 then quantizing and serving it locally via Ollama, backed by a regex-based
 safety net for near-zero data leakage.
 
-**🔗 Live demo:** [pii-redactor-3emxrbsyensfdyq3ip2mpy.streamlit.app](https://pii-redactor-3emxrbsyensfdyq3ip2mpy.streamlit.app)
-*(hosted for convenience — the actual point of this project is that it
-runs fully offline on your own device; see [Getting started](#getting-started) below)*
+**Author:** [Yashika Harwani](https://github.com/yashika900)
 
 **Model on Hugging Face Hub:** [Yashika900/pii-redactor-llama3.2-3b](https://huggingface.co/Yashika900/pii-redactor-llama3.2-3b)
 
+> **On hosting:** this project doesn't have a permanently-hosted live demo
+> — free-tier cloud hosting (Streamlit Community Cloud, Hugging Face
+> Spaces) doesn't provide enough RAM/compute to run a 3B-parameter model
+> at no cost, and paying to host a 24/7 demo isn't worthwhile for a
+> project whose entire premise is running locally. See the screenshots
+> below for it in action, or follow [Getting started](#getting-started) to
+> run it yourself in a few minutes.
+
 ---
+
+## Demo
+
+**Correctly redacting PII while leaving a ticket/reference number
+untouched** (a false-positive bug found and fixed during development —
+see [Known limitations](#known-limitations)):
+
+![Redaction demo](docs/screenshots/demo-redaction-example.png)
+
+**Running as a deployed Streamlit app**, confirming the end-to-end
+pipeline (fine-tuned model → regex safety net → web UI) works outside the
+development environment:
+
+![Deployed app demo](docs/screenshots/demo-cloud-deployment.png)
 
 ## Why
 
@@ -60,11 +80,12 @@ layer catches anything structurally predictable that slips through —
 empirically demonstrated to recover missed emails and IP addresses in
 stress testing (see [Results](#results) below).
 
-> **Note on the two deployment paths:** this repo ships both a local,
-> Ollama-based app (`src/app.py`) for genuine offline use, and a
-> Streamlit-Community-Cloud-compatible version (`src/app_cloud.py`, via
-> `llama-cpp-python`) used purely to host the public demo link above.
-> Both use the identical fine-tuned model and safety-net logic.
+> **Note on the two app variants in this repo:** `src/app.py` uses Ollama
+> and is the fully-offline, locally-run version. `src/app_cloud.py` uses
+> `llama-cpp-python` instead, built while testing free cloud hosting
+> options before concluding that paid compute would be required for a
+> persistent demo. Both use the identical fine-tuned model and safety-net
+> logic — only the serving mechanism differs.
 
 ## Results
 
@@ -88,7 +109,7 @@ stress testing (see [Results](#results) below).
 - **Fine-tuning:** [Unsloth](https://github.com/unslothai/unsloth), PyTorch, TRL, PEFT (LoRA)
 - **Base model:** [Llama 3.2 3B Instruct](https://huggingface.co/unsloth/Llama-3.2-3B-Instruct)
 - **Export/quantization:** [llama.cpp](https://github.com/ggml-org/llama.cpp) (GGUF, Q4_K_M)
-- **Serving:** [Ollama](https://ollama.com) (local) / `llama-cpp-python` (cloud demo)
+- **Serving:** [Ollama](https://ollama.com) (local)
 - **Safety net:** Python `re`
 - **Interface:** [Streamlit](https://streamlit.io)
 
@@ -166,18 +187,20 @@ pii-redactor/
 ├── src/
 │   ├── inference/
 │   │   ├── redactor.py           # PIIRedactor (Ollama) — local/offline use
-│   │   ├── llamacpp_redactor.py  # PIIRedactorCloud — Streamlit Cloud demo
+│   │   ├── llamacpp_redactor.py  # PIIRedactorCloud — cloud hosting experiment
 │   │   └── regex_patterns.py     # Safety-net regex layer
 │   ├── data_generation/
 │   │   └── generate_dataset.py
 │   ├── app.py                    # Local Streamlit app (Ollama-based)
-│   └── app_cloud.py               # Cloud-deployed Streamlit app
+│   └── app_cloud.py               # Cloud-hosting variant (llama-cpp-python)
 ├── tests/
 │   └── test_regex_patterns.py
 ├── data/
 │   └── synthetic_dataset_clean.jsonl
 ├── models/
 │   └── Modelfile
+├── docs/
+│   └── screenshots/
 ├── .github/workflows/tests.yml
 └── requirements.txt
 ```
@@ -190,6 +213,10 @@ pii-redactor/
   and very short, context-free fragments can occasionally be misclassified
 - Business/generic emails aren't always perfectly distinguished from
   personal ones
+- An earlier version falsely flagged reference/ticket numbers (e.g.
+  `REF-9012`) as license plates due to an overly broad regex pattern;
+  fixed by requiring explicit "license plate" context (see
+  `tests/test_regex_patterns.py` for the regression test)
 
 These are documented here deliberately — they were found through genuine
 stress testing, not glossed over.
